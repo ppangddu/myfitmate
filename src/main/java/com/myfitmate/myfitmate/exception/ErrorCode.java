@@ -1,5 +1,6 @@
 package com.myfitmate.myfitmate.exception;
 
+<<<<<<< HEAD
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
