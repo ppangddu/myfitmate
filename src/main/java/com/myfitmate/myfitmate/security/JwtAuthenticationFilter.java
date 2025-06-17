@@ -32,19 +32,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String header = request.getHeader("Authorization");
+        try {
+            String header = request.getHeader("Authorization");
 
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
+            if (header != null && header.startsWith("Bearer ")) {
+                String token = header.substring(7);
+                Long userId = jwtUtil.extractUserId(token); // 내부에서 유효성 검증도 수행해야 안정적
 
-            Long userId = jwtUtil.extractUserId(token);
-            if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetailsImpl userDetails = userDetailsService.loadUserById(userId);
-                JwtAuthenticationToken auth = new JwtAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(auth);
-                request.setAttribute("userId", userId);
+                if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetailsImpl userDetails = userDetailsService.loadUserById(userId);
+                    JwtAuthenticationToken auth = new JwtAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+
+                    // 컨트롤러에서 사용 가능하게 userId 저장
+                    request.setAttribute("userId", userId);
+                }
             }
+        } catch (Exception e) {
+            // 예외 발생 시 인증 안 된 상태로 그냥 다음 필터 진행
+            logger.warn("🔐 JWT 필터 처리 실패: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

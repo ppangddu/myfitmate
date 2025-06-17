@@ -38,14 +38,22 @@ public class JwtUtil {
     }
 
     public Long extractUserId(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
 
-        return Long.parseLong(claims.getSubject());
+            return Long.parseLong(claims.getSubject());
+
+        } catch (Exception e) {
+            // 로그 찍고 null 반환
+            System.out.println("❌ JWT 유효성 검사 실패: " + e.getMessage());
+            return null;
+        }
     }
+
 
     public String createRefreshToken(Long userId) {
         Date now = new Date();
