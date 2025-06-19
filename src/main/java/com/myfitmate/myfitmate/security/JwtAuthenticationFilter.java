@@ -24,6 +24,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        // 인증 없이 허용할 경로는 여기서 그냥 pass
+        String path = request.getRequestURI();
+        if (path.startsWith("/api/auth/kakao") || path.startsWith("/api/auth/login") || path.startsWith("/api/auth/refresh")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         try {
             String header = request.getHeader("Authorization");
@@ -41,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             // 예외 발생 시 인증 안 된 상태로 그냥 다음 필터 진행
-            logger.warn("🔐 JWT 필터 처리 실패: " + e.getMessage());
+            logger.warn("JWT 필터 처리 실패: " + e.getMessage());
         }
         filterChain.doFilter(request, response);
     }

@@ -23,22 +23,24 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // 🔐 비밀번호 암호화
+    // 비밀번호 암호화
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 🔐 시큐리티 필터 체인 설정 (API 허용 경로 등)
+    // 시큐리티 필터 체인 설정 (API 허용 경로 등)
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/signup", "/api/auth/**", "api/dev/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/user/me").authenticated()
+                        .requestMatchers("/", "/login", "/signup").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll() // ✅ 가장 위로!
+                        .requestMatchers("/api/dev/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/exercise/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/meal/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasic -> httpBasic.disable())
