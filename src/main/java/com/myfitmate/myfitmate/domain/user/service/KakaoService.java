@@ -2,10 +2,12 @@ package com.myfitmate.myfitmate.domain.user.service;
 
 import com.myfitmate.myfitmate.domain.user.Gender;
 import com.myfitmate.myfitmate.domain.user.Goal;
+import com.myfitmate.myfitmate.domain.user.dto.TokenResponseDto;
 import com.myfitmate.myfitmate.security.JwtUtil;
 import com.myfitmate.myfitmate.domain.user.entity.User;
 import com.myfitmate.myfitmate.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class KakaoService {
@@ -30,7 +33,7 @@ public class KakaoService {
     @Value("${kakao.redirect-uri}")
     private String redirectUri;
 
-    public String kakaoLogin(String code) {
+    public TokenResponseDto kakaoLogin(String code) {
         // 1. 카카오 액세스 토큰 요청
         String tokenUri = "https://kauth.kakao.com/oauth/token";
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -40,12 +43,12 @@ public class KakaoService {
         params.add("code", code);
 
         ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(tokenUri, params, Map.class);
-        String accessToken = (String) tokenResponse.getBody().get("access_token");
+        String kakaoAccessToken = (String) tokenResponse.getBody().get("access_token");
 
         // 2. 사용자 정보 요청
         String userInfoUri = "https://kapi.kakao.com/v2/user/me";
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
+        headers.setBearerAuth(kakaoAccessToken);
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
         ResponseEntity<Map> userInfoResponse = restTemplate.exchange(userInfoUri, HttpMethod.GET, entity, Map.class);
@@ -88,7 +91,16 @@ public class KakaoService {
             user = userRepository.save(user);
         }
 
+        String accessToken = jwtUtil.createAccessToken(user);
+        String refreshToken = jwtUtil.createRefreshToken(user.getId());
+
+        System.out.println("✅ accessToken: " + accessToken);
+        System.out.println("✅ refreshToken: " + refreshToken);
+
         // 5. JWT 토큰 생성
-        return jwtUtil.createToken(user.getId(), user.getNickname());
+        //return jwtUtil.createToken(user.getId(), user.getNickname());
+        log.info("accessToken: {}", accessToken);
+        log.info("refreshToken: {}", refreshToken);
+        return new TokenResponseDto(accessToken, refreshToken);
     }
 }
