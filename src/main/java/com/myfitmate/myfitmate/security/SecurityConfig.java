@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,6 +27,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 허용할 경로
@@ -38,6 +40,7 @@ public class SecurityConfig {
                         // 나머지 /api/foods/** 는 인증 필요
                         .requestMatchers(HttpMethod.POST, "/api/foods/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/foods/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/foods/**").authenticated()
 
                         // meals 는 모두 인증 필요
                         .requestMatchers("/api/meals/**").authenticated()

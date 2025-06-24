@@ -97,4 +97,17 @@ public class FoodService {
                 .collect(Collectors.toList());
     }
 
+    public Food updateFood(Long id, FoodRequestDto dto, User user) {
+        Food food = foodRepository.findById(id)
+                .orElseThrow(() -> new FoodException(FoodErrorCode.FOOD_NOT_FOUND));
+
+        if (!food.getUser().getId().equals(user.getId())) {
+            throw new FoodException(FoodErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        food.updateFromDto(dto);
+        return foodRepository.save(food);
+    }
+
+
 }

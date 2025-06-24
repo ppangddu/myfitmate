@@ -1,5 +1,6 @@
 package com.myfitmate.myfitmate.domain.food.entity;
 
+import com.myfitmate.myfitmate.domain.food.dto.FoodRequestDto;
 import com.myfitmate.myfitmate.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -56,4 +57,19 @@ public class Food {
             this.referenceBasis = "per 기준량";
         }
     }
+
+    public void updateFromDto(FoodRequestDto dto) {
+        this.name = dto.getName();
+        this.originCategory = dto.getOriginCategory();
+        this.originSubCategory = dto.getOriginSubCategory();
+        this.originDetailCategory = dto.getOriginDetailCategory();
+        this.standardAmount = dto.getStandardAmount();
+        this.calories = dto.getCalories();
+        this.carbohydrate = dto.getCarbohydrate();
+        this.protein = dto.getProtein();
+        this.fat = dto.getFat();
+        this.sodium = dto.getSodium();
+        this.referenceBasis = dto.getReferenceBasis();
+    }
+
 }

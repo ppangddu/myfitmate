@@ -73,4 +73,15 @@ public class FoodController {
         foodService.deleteFood(id, user);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<FoodResponseDto> updateFood(
+            @PathVariable Long id,
+            @RequestBody @Valid FoodRequestDto dto,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        User user = userDetails.getUser();
+        Food updated = foodService.updateFood(id, dto, user);
+        return ResponseEntity.ok(FoodResponseDto.fromEntity(updated));
+    }
 }
