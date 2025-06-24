@@ -36,27 +36,31 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
+                        // 인증 없이 허용할 경로
                         .requestMatchers("/", "/login", "/signup").permitAll()
-                        .requestMatchers("/api/auth/**", "/api/ai/**").permitAll()
-                        .requestMatchers("/api/dev/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/ai/**", "/api/dev/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
 
+                        // Foods - GET은 모두 허용, 나머지는 인증 필요
                         .requestMatchers(HttpMethod.GET, "/api/foods/**").permitAll()
-
                         .requestMatchers(HttpMethod.POST, "/api/foods/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/foods/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/foods/**").authenticated()
 
+                        // Meals - 모두 인증 필요
                         .requestMatchers("/api/meals/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/meal/**").authenticated()
 
+                        // Exercise - 일부 인증 필요
                         .requestMatchers(HttpMethod.POST, "/api/exercise/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/exercise/**").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/exercise/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/exercise/**").authenticated()
 
-                        .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
+                        // 사용자 관련
                         .requestMatchers(HttpMethod.DELETE, "/api/user/me").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
 
+                        // 기타는 인증 필요
                         .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasic -> httpBasic.disable())
@@ -70,7 +74,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:5173")); // 프론트엔드 주소
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
 
