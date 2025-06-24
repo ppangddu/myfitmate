@@ -48,6 +48,9 @@ public class SecurityConfig {
                         // Meals - 모두 인증 필요
                         .requestMatchers("/api/meals/**").authenticated()
 
+                        // Statistics - 추가 필요
+                        .requestMatchers("/api/statistics/**").authenticated()
+
                         // Exercise - 일부 인증 필요
                         .requestMatchers(HttpMethod.POST, "/api/exercise/**").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/exercise/**").authenticated()
