@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -30,7 +31,8 @@ public class FoodCsvService {
                 throw new RuntimeException("📛 CSV 파일을 찾을 수 없습니다: " + path);
             }
 
-            InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
+            // InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
+            InputStreamReader reader = new InputStreamReader(is, Charset.forName("EUC-KR"));
             BufferedReader bufferedReader = new BufferedReader(reader);
 
             // ✅ 첫 줄 (헤더) 확인 로그
