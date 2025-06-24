@@ -24,13 +24,11 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // 비밀번호 암호화
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 시큐리티 필터 체인 설정
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -38,26 +36,27 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // 인증 없이 허용할 경로
                         .requestMatchers("/", "/login", "/signup").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/ai/**").permitAll()
                         .requestMatchers("/api/dev/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
 
-                        // GET 요청 허용
                         .requestMatchers(HttpMethod.GET, "/api/foods/**").permitAll()
 
-                        // 인증이 필요한 요청
                         .requestMatchers(HttpMethod.POST, "/api/foods/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/foods/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/foods/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/foods/**").authenticated()
+
                         .requestMatchers("/api/meals/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/meal/**").authenticated()
+
                         .requestMatchers(HttpMethod.POST, "/api/exercise/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/exercise/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/exercise/**").authenticated()
+
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/user/me").authenticated()
 
-                        // 기타 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasic -> httpBasic.disable())
