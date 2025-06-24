@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class ExerciseLogResponseDto {
+    private Long id;
     private String exerciseName;
     private float durationMinutes;
     private float kcalBurned;

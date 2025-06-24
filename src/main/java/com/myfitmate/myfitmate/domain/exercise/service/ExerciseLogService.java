@@ -64,6 +64,7 @@ public class ExerciseLogService {
         }
 
         return logs.stream().map(log -> ExerciseLogResponseDto.builder()
+                .id(log.getId())
                 .exerciseName(log.getExercise().getName())
                 .durationMinutes(log.getDurationMinutes())
                 .kcalBurned(log.getKcalBurned())
