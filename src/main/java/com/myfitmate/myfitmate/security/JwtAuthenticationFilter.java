@@ -24,9 +24,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        // 인증 없이 허용할 경로는 여기서 그냥 pass
+
         String path = request.getRequestURI();
-        if (path.startsWith("/api/auth/kakao") || path.startsWith("/api/auth/login") || path.startsWith("/api/auth/refresh")) {
+
+        // 인증 없이 접근 가능한 경로
+        if (
+                path.startsWith("/api/auth/") ||
+                        path.startsWith("/api/ai/") ||
+                        path.equals("/") ||
+                        path.equals("/login") ||
+                        path.equals("/signup")
+        ) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -36,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (header != null && header.startsWith("Bearer ")) {
                 String token = header.substring(7);
-                Long userId = jwtUtil.extractUserId(token); // 내부에서 유효성 검증도 수행해야 안정적
+                Long userId = jwtUtil.extractUserId(token); // 유효성 검증 포함되어야 안정적
 
                 if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetailsImpl userDetails = userDetailsService.loadUserById(userId);
@@ -46,9 +54,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            // 예외 발생 시 인증 안 된 상태로 그냥 다음 필터 진행
             logger.warn("JWT 필터 처리 실패: " + e.getMessage());
         }
+
         filterChain.doFilter(request, response);
     }
 }

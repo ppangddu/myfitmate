@@ -37,10 +37,12 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/signup").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll() // ✅ 가장 위로!
+                        .requestMatchers("/api/auth/**", "/api/ai/**").permitAll()
                         .requestMatchers("/api/dev/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/exercise/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/meal/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/exercise/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/exercise/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasic -> httpBasic.disable())
