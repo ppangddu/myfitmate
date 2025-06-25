@@ -11,7 +11,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Slf4j
@@ -31,7 +30,6 @@ public class FoodCsvService {
                 throw new RuntimeException("📛 CSV 파일을 찾을 수 없습니다: " + path);
             }
 
-            // InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
             InputStreamReader reader = new InputStreamReader(is, Charset.forName("EUC-KR"));
             BufferedReader bufferedReader = new BufferedReader(reader);
 
@@ -58,7 +56,7 @@ public class FoodCsvService {
                         food.getFat(), food.getSodium(), food.getStandardAmount());
             }
 
-            // ✅ null 포함 항목 출력
+            // ✅ 누락 항목 확인
             cachedCsvFoods.stream()
                     .filter(f -> f.getCalories() == null || f.getFat() == null || f.getSodium() == null || f.getStandardAmount() == null)
                     .limit(10)

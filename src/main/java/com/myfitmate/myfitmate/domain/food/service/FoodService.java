@@ -1,73 +1,59 @@
 package com.myfitmate.myfitmate.domain.food.service;
 
 import com.myfitmate.myfitmate.domain.food.dto.FoodRequestDto;
-import com.myfitmate.myfitmate.domain.food.dto.FoodResponseDto;
 import com.myfitmate.myfitmate.domain.food.entity.Food;
 import com.myfitmate.myfitmate.domain.food.exception.FoodErrorCode;
 import com.myfitmate.myfitmate.domain.food.exception.FoodException;
 import com.myfitmate.myfitmate.domain.food.repository.FoodRepository;
 import com.myfitmate.myfitmate.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class FoodService {
 
     private final FoodRepository foodRepository;
 
+    @Transactional
     public Food registerFood(FoodRequestDto dto, User user) {
-        if (foodRepository.existsByName(dto.getName())) {
+        if (foodRepository.existsByNameAndUser(dto.getName(), user)) {
             throw new FoodException(FoodErrorCode.DUPLICATE_FOOD);
         }
-
-        log.info("===> name: {}", dto.getName());
-        log.info("===> standardAmount: {}", dto.getStandardAmount());
-        log.info("===> calories: {}", dto.getCalories());
-        log.info("===> protein: {}", dto.getProtein());
-        log.info("===> fat: {}", dto.getFat());
-        log.info("===> carbohydrate: {}", dto.getCarbohydrate());
-        log.info("===> sodium: {}", dto.getSodium());
-        log.info("===> referenceBasis: {}", dto.getReferenceBasis());
-        log.info("===> originCategory: {}", dto.getOriginCategory());
-        log.info("===> originSubCategory: {}", dto.getOriginSubCategory());
-        log.info("===> originDetailCategory: {}", dto.getOriginDetailCategory());
-
-        Food food = Food.builder()
-                .name(dto.getName())
-                .originCategory(dto.getOriginCategory())
-                .originSubCategory(dto.getOriginSubCategory())
-                .originDetailCategory(dto.getOriginDetailCategory())
-                .standardAmount(dto.getStandardAmount())
-                .calories(dto.getCalories())
-                .carbohydrate(dto.getCarbohydrate())
-                .protein(dto.getProtein())
-                .fat(dto.getFat())
-                .sodium(dto.getSodium())
-                .referenceBasis(dto.getReferenceBasis())
-                .user(user)
-                .build();
-
+        Food food = dto.toEntity(user);
+        food.setUser(user);
         return foodRepository.save(food);
     }
 
-    public List<FoodResponseDto> getAllFoods() {
-        return foodRepository.findAll().stream()
-                .map(FoodResponseDto::fromEntity)
-                .collect(Collectors.toList());
+    @Transactional(readOnly = true)
+    public List<Food> getFoods(String keyword, User user) {
+        if (keyword == null || keyword.isBlank()) {
+            return foodRepository.findAllByUser(user);
+        }
+        return foodRepository.findByNameContainingIgnoreCaseAndUser(keyword, user);
     }
 
-    public FoodResponseDto getFoodById(Long id) {
+    @Transactional(readOnly = true)
+    public Food getFoodById(Long id) {
+        return foodRepository.findById(id)
+                .orElseThrow(() -> new FoodException(FoodErrorCode.FOOD_NOT_FOUND));
+    }
+
+    @Transactional
+    public Food updateFood(Long id, FoodRequestDto dto, User user) {
         Food food = foodRepository.findById(id)
                 .orElseThrow(() -> new FoodException(FoodErrorCode.FOOD_NOT_FOUND));
-        return FoodResponseDto.fromEntity(food);
+        if (!food.getUser().getId().equals(user.getId())) {
+            throw new FoodException(FoodErrorCode.UNAUTHORIZED_ACCESS);
+        }
+        food.updateFromDto(dto);
+        return food;
     }
 
+    @Transactional
     public void deleteFood(Long id, User user) {
         Food food = foodRepository.findById(id)
                 .orElseThrow(() -> new FoodException(FoodErrorCode.FOOD_NOT_FOUND));
@@ -76,38 +62,4 @@ public class FoodService {
         }
         foodRepository.delete(food);
     }
-
-    public List<FoodResponseDto> searchFoods(String keyword) {
-        return foodRepository.findByNameContainingIgnoreCase(keyword).stream()
-                .map(FoodResponseDto::fromEntity)
-                .collect(Collectors.toList());
-    }
-
-    public List<FoodResponseDto> getFoods(String keyword, User user) {
-        List<Food> foods;
-
-        if (keyword == null || keyword.isBlank()) {
-            foods = foodRepository.findByUser(user);
-        } else {
-            foods = foodRepository.findByUserAndNameContainingIgnoreCase(user, keyword);
-        }
-
-        return foods.stream()
-                .map(FoodResponseDto::fromEntity)
-                .collect(Collectors.toList());
-    }
-
-    public Food updateFood(Long id, FoodRequestDto dto, User user) {
-        Food food = foodRepository.findById(id)
-                .orElseThrow(() -> new FoodException(FoodErrorCode.FOOD_NOT_FOUND));
-
-        if (!food.getUser().getId().equals(user.getId())) {
-            throw new FoodException(FoodErrorCode.UNAUTHORIZED_ACCESS);
-        }
-
-        food.updateFromDto(dto);
-        return foodRepository.save(food);
-    }
-
-
 }

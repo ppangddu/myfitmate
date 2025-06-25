@@ -20,7 +20,7 @@ public class FoodCsvDto {
     @CsvBindByName(column = "식품소분류명")
     private String originDetailCategory;
 
-    @CsvBindByName(column = "1회 섭취참고량")
+    @CsvBindByName(column = "영양성분함량기준량")
     private String standardAmount;
 
     @CsvBindByName(column = "에너지(kcal)")

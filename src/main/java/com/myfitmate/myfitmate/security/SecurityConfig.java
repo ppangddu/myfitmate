@@ -39,19 +39,19 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/api/ai/**", "/api/dev/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
 
-                        // Foods - GET은 모두 허용, 나머지는 인증 필요
+                        // Foods - GET만 허용, 나머지는 인증 필요
                         .requestMatchers(HttpMethod.GET, "/api/foods/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/foods/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/foods/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/foods/**").authenticated()
 
-                        // Meals - 모두 인증 필요
+                        // Meals - 전체 인증 필요
                         .requestMatchers("/api/meals/**").authenticated()
 
-                        // Statistics - 추가 필요
+                        // Statistics - 인증 필요
                         .requestMatchers("/api/statistics/**").authenticated()
 
-                        // Exercise - 일부 인증 필요
+                        // Exercise - 쓰기 관련만 인증
                         .requestMatchers(HttpMethod.POST, "/api/exercise/**").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/exercise/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/exercise/**").authenticated()
@@ -60,7 +60,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/user/me").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
 
-                        // 나머지는 기본 인증 필요
+                        // 기타 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasic -> httpBasic.disable())
