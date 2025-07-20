@@ -53,9 +53,19 @@ public class MealController {
     }
 
     @GetMapping
-    public ResponseEntity<List<MealResponseDto>> getAllMeals(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ResponseEntity.ok(mealService.getAllMeals(userDetails.getUser().getId()));
+    public ResponseEntity<List<MealResponseDto>> getMeals(
+            @RequestParam(value = "date", required = false) String dateStr,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        Long userId = userDetails.getUser().getId();
+
+        if (dateStr != null && !dateStr.isBlank()) {
+            return ResponseEntity.ok(mealService.getMealsByDate(userId, dateStr));
+        }
+
+        return ResponseEntity.ok(mealService.getAllMeals(userId));
     }
+
 
     @GetMapping("/search")
     public ResponseEntity<List<MealResponseDto>> searchMeals(

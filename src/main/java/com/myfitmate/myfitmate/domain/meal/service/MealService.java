@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -235,4 +236,19 @@ public class MealService {
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public List<MealResponseDto> getMealsByDate(Long userId, String dateStr) {
+        validateUser(userId);
+
+        LocalDate date = LocalDate.parse(dateStr);
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.plusDays(1).atStartOfDay();
+
+        List<Meal> meals = mealRepository.findByUserIdAndEatTimeBetween(userId, start, end);
+        return meals.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
 }

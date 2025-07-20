@@ -35,6 +35,10 @@ public class MealResponseDto {
         private String foodName;
         private float quantity;
         private float calories;
+        private float carbohydrate;
+        private float protein;
+        private float fat;
+
     }
 
     public static MealResponseDto fromEntity(Meal meal, List<MealFood> mealFoods, MealImage mealImage) {
@@ -45,6 +49,9 @@ public class MealResponseDto {
                     .foodName(food.getName())
                     .quantity(mf.getQuantity())
                     .calories(mf.getCalories())
+                    .carbohydrate(food.getCarbohydrate())
+                    .protein(food.getProtein())
+                    .fat(food.getFat())
                     .build();
         }).collect(Collectors.toList());
 
