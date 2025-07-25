@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/login", "/signup").permitAll()
                         .requestMatchers("/api/auth/**", "/api/ai/**", "/api/dev/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/api/ai/feedback").authenticated()
 
                         // Foods - GET만 허용, 나머지는 인증 필요
                         .requestMatchers(HttpMethod.GET, "/api/foods/**").permitAll()

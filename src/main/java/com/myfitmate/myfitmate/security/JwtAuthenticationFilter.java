@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 인증 없이 접근 가능한 경로
         if (
                 path.startsWith("/api/auth/") ||
-                        path.startsWith("/api/ai/") ||
+//                        path.startsWith("/api/ai/") ||
                         path.equals("/") ||
                         path.equals("/login") ||
                         path.equals("/signup")
